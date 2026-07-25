@@ -23,35 +23,37 @@ onScan
 
 }
 
-async function onScan(reference){
+async function onScan(qrText) {
 
-    console.log("Scanned QR:", reference);
-  alert(reference);   // Temporary for debugging
+  let reference = qrText;
 
-await scanner.stop();
+  try {
+    const data = JSON.parse(qrText);
 
-document.getElementById("message").innerHTML="Checking...";
+    if (data.reference) {
+      reference = data.reference;
+    }
+  } catch (e) {
+    // QR isn't JSON, treat it as a plain reference
+  }
 
-fetch(
+  console.log("Reference:", reference);
 
-CONFIG.API_URL+"?reference="+encodeURIComponent(reference)
+  await scanner.stop();
 
-)
+  document.getElementById("message").innerHTML = "Checking...";
 
-.then(r=>r.json())
-
-.then(showResult)
-
-.catch(e=>{
-
-document.getElementById("message").innerHTML=e;
-
-setTimeout(startScanner,2000);
-
-});
+  fetch(
+    CONFIG.API_URL + "?reference=" + encodeURIComponent(reference)
+  )
+    .then(r => r.json())
+    .then(showResult)
+    .catch(e => {
+      document.getElementById("message").innerHTML = e;
+      setTimeout(startScanner, 2000);
+    });
 
 }
-
 function showResult(result){
 
 const div=document.getElementById("message");
