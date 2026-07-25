@@ -25,6 +25,9 @@ onScan
 
 async function onScan(reference){
 
+    console.log("Scanned QR:", reference);
+  alert(reference);   // Temporary for debugging
+
 await scanner.stop();
 
 document.getElementById("message").innerHTML="Checking...";
