@@ -1,35 +1,147 @@
+/**
+ * dashboard.js
+ * Jallosh Dashboard
+ */
+
 let progressChart = null;
 let timelineChart = null;
+let searchTimer = null;
+
+const UI = {
+
+    bookings: document.getElementById("bookings"),
+    tickets: document.getElementById("tickets"),
+    checkedIn: document.getElementById("checkedIn"),
+    remaining: document.getElementById("remaining"),
+
+    attendancePercent: document.getElementById("attendancePercent"),
+    attendanceBar: document.getElementById("attendanceBar"),
+
+    recentTable: document.getElementById("recentTable"),
+
+    searchBox: document.getElementById("searchBox"),
+    searchResults: document.getElementById("searchResults"),
+
+    status: document.getElementById("status"),
+    lastUpdated: document.getElementById("lastUpdated")
+
+};
+
+
+/* ===========================================
+   Dashboard
+=========================================== */
 
 async function loadDashboard() {
 
+    const data = await API.dashboard();
+
+    if (!data.success) {
+        throw new Error("Unable to load dashboard.");
+    }
+
+    const stats = data.stats;
+
+    UI.bookings.textContent = stats.bookings;
+    UI.tickets.textContent = stats.totalTickets;
+    UI.checkedIn.textContent = stats.checkedIn;
+    UI.remaining.textContent = stats.remaining;
+
+    UI.attendancePercent.textContent =
+        `${stats.attendance}%`;
+
+    UI.attendanceBar.style.width =
+        `${stats.attendance}%`;
+
+    updateProgressChart(stats);
+
+}
+
+
+/* ===========================================
+   Recent Check-ins
+=========================================== */
+
+async function loadRecent() {
+
+    const data = await API.recent();
+
+    if (!data.success) {
+        throw new Error("Unable to load recent scans.");
+    }
+
+    UI.recentTable.innerHTML = "";
+
+    data.recent.forEach(scan => {
+
+        const row = document.createElement("tr");
+
+        row.innerHTML = `
+            <td>${formatTime(scan.time)}</td>
+            <td>${scan.reference}</td>
+            <td>${scan.name}</td>
+            <td>${getBadge(scan.result)}</td>
+        `;
+
+        UI.recentTable.appendChild(row);
+
+    });
+
+}
+
+
+/* ===========================================
+   Search
+=========================================== */
+
+function searchDelayed() {
+
+    clearTimeout(searchTimer);
+
+    searchTimer = setTimeout(search, 300);
+
+}
+
+async function search() {
+
+    const query = UI.searchBox.value.trim();
+
+    if (!query) {
+
+        UI.searchResults.innerHTML = "";
+
+        return;
+
+    }
+
     try {
 
-        const data = await API.dashboard();
+        const data = await API.search(query);
 
         if (!data.success) return;
 
-        const stats = data.stats;
+        UI.searchResults.innerHTML = "";
 
-        document.getElementById("bookings").textContent =
-            stats.bookings;
+        data.results.forEach(item => {
 
-        document.getElementById("tickets").textContent =
-            stats.totalTickets;
+            const card = document.createElement("div");
 
-        document.getElementById("checkedIn").textContent =
-            stats.checkedIn;
+            card.className = "search-card";
 
-        document.getElementById("remaining").textContent =
-            stats.remaining;
+            card.innerHTML = `
 
-        document.getElementById("attendancePercent").textContent =
-            stats.attendance + "%";
+                <strong>${item.name}</strong><br>
 
-        document.getElementById("attendanceBar").style.width =
-            stats.attendance + "%";
+                ${item.reference}<br>
 
-        drawProgressChart(stats);
+                Checked In:
+                <strong>${item.scanCount}/${item.totalTickets}</strong>
+
+            `;
+
+            UI.searchResults.appendChild(card);
+
+        });
 
     }
 
@@ -41,89 +153,79 @@ async function loadDashboard() {
 
 }
 
-async function loadRecent() {
 
-    const data = await API.recent();
+/* ===========================================
+   Charts
+=========================================== */
 
-    if (!data.success) return;
-
-    const tbody =
-        document.getElementById("recentTable");
-
-    tbody.innerHTML = "";
-
-    data.recent.forEach(scan => {
-
-        const row = document.createElement("tr");
-
-        row.innerHTML = `
-
-            <td>${formatTime(scan.time)}</td>
-
-            <td>${scan.reference}</td>
-
-            <td>${scan.name}</td>
-
-            <td>${scan.result}</td>
-
-        `;
-
-        tbody.appendChild(row);
-
-    });
-
-}
-
-function drawProgressChart(stats) {
+function updateProgressChart(stats) {
 
     const ctx =
         document
             .getElementById("progressChart")
             .getContext("2d");
 
-    if (progressChart)
-        progressChart.destroy();
+    if (!progressChart) {
 
-    progressChart = new Chart(ctx, {
+        progressChart = new Chart(ctx, {
 
-        type: "doughnut",
+            type: "doughnut",
 
-        data: {
+            data: {
 
-            labels: [
+                labels: [
 
-                "Checked In",
+                    "Checked In",
+                    "Remaining"
 
-                "Remaining"
+                ],
 
-            ],
+                datasets: [{
 
-            datasets: [{
+                    data: [0, 0]
 
-                data: [
+                }]
 
-                    stats.checkedIn,
+            },
 
-                    stats.remaining
+            options: {
 
-                ]
+                responsive: true,
 
-            }]
+                maintainAspectRatio: false,
 
-        },
+                plugins: {
 
-        options: {
+                    legend: {
 
-            responsive: true,
+                        position: "bottom"
 
-            maintainAspectRatio: false
+                    }
 
-        }
+                }
 
-    });
+            }
+
+        });
+
+    }
+
+    progressChart.data.datasets[0].data = [
+
+        stats.checkedIn,
+        stats.remaining
+
+    ];
+
+    progressChart.update();
 
 }
 
+
+/**
+ * Placeholder
+ * Timeline API will be added later.
+ */
 function drawTimelineChart() {
 
     const ctx =
@@ -153,7 +255,17 @@ function drawTimelineChart() {
 
             responsive: true,
 
-            maintainAspectRatio: false
+            maintainAspectRatio: false,
+
+            plugins: {
+
+                legend: {
+
+                    display: false
+
+                }
+
+            }
 
         }
 
@@ -161,96 +273,122 @@ function drawTimelineChart() {
 
 }
 
-async function search() {
 
-    const query =
-        document
-            .getElementById("searchBox")
-            .value
-            .trim();
+/* ===========================================
+   Helpers
+=========================================== */
 
-    if (!query) {
+function getBadge(result) {
 
-        document
-            .getElementById("searchResults")
-            .innerHTML = "";
+    let css = "success";
 
-        return;
+    switch (result) {
+
+        case "ERROR":
+            css = "danger";
+            break;
+
+        case "PARTIAL":
+            css = "warning";
+            break;
+
+        case "COMPLETE":
+            css = "primary";
+            break;
+
+        default:
+            css = "success";
 
     }
 
-    const data =
-        await API.search(query);
-
-    if (!data.success) return;
-
-    const container =
-        document.getElementById("searchResults");
-
-    container.innerHTML = "";
-
-    data.results.forEach(item => {
-
-        const div =
-            document.createElement("div");
-
-        div.className = "search-card";
-
-        div.innerHTML = `
-
-            <strong>${item.name}</strong><br>
-
-            ${item.reference}<br>
-
-            ${item.scanCount}/${item.totalTickets}
-
-        `;
-
-        container.appendChild(div);
-
-    });
+    return `
+        <span class="badge ${css}">
+            ${result}
+        </span>
+    `;
 
 }
 
 function formatTime(date) {
 
-    return new Date(date)
-        .toLocaleTimeString([], {
+    return new Date(date).toLocaleTimeString([], {
 
-            hour: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit"
 
-            minute: "2-digit"
-
-        });
+    });
 
 }
 
-document
-    .getElementById("searchBox")
-    .addEventListener("input", search);
+function setOnlineStatus(online) {
 
-drawTimelineChart();
+    if (!UI.status) return;
+
+    UI.status.textContent =
+        online ? "🟢 Live" : "🔴 Offline";
+
+}
+
+function updateLastRefresh() {
+
+    if (!UI.lastUpdated) return;
+
+    UI.lastUpdated.textContent =
+        new Date().toLocaleTimeString();
+
+}
+
+
+/* ===========================================
+   Refresh
+=========================================== */
 
 async function refreshDashboard() {
 
     try {
 
         await Promise.all([
+
             loadDashboard(),
             loadRecent()
+
         ]);
 
-    } catch (err) {
+        setOnlineStatus(true);
+
+        updateLastRefresh();
+
+    }
+
+    catch (err) {
 
         console.error(err);
+
+        setOnlineStatus(false);
 
     }
 
 }
 
+
+/* ===========================================
+   Initialise
+=========================================== */
+
+UI.searchBox.addEventListener(
+    "input",
+    searchDelayed
+);
+
+drawTimelineChart();
+
 refreshDashboard();
 
 setInterval(
+
     refreshDashboard,
+
     CONFIG.REFRESH_INTERVAL
+
 );
