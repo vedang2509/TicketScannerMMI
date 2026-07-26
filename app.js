@@ -1,6 +1,12 @@
 let scanner;
 let processing = false;
 
+const card = document.getElementById("resultCard");
+const statusTitle = document.getElementById("statusTitle");
+const statusIcon = document.getElementById("statusIcon");
+const guestName = document.getElementById("guestName");
+const scanDetails = document.getElementById("scanDetails");
+
 function startScanner() {
 
     scanner = new Html5Qrcode("reader");
@@ -9,7 +15,10 @@ function startScanner() {
         { facingMode: "environment" },
         {
             fps: 10,
-            qrbox: { width: 250, height: 250 }
+            qrbox: {
+                width: 280,
+                height: 280
+            }
         },
         onScan
     );
@@ -31,11 +40,13 @@ async function onScan(qrText) {
         if (data.reference)
             reference = data.reference;
 
-    } catch (e) {
+    } catch {
+
         // Plain text QR
+
     }
 
-    document.getElementById("message").innerHTML = "Checking...";
+    showChecking();
 
     try {
 
@@ -49,10 +60,9 @@ async function onScan(qrText) {
 
         showResult(result);
 
-    } catch (err) {
+    } catch {
 
-        document.getElementById("message").innerHTML =
-            "Connection Error";
+        showConnectionError();
 
     }
 
@@ -60,53 +70,108 @@ async function onScan(qrText) {
 
         processing = false;
 
-        document.getElementById("message").innerHTML =
-            "Ready to Scan";
+    }, 1200);
 
-    }, 2000);
+}
+
+function showChecking() {
+
+    card.className = "result-card waiting";
+
+    statusIcon.textContent = "⏳";
+    statusTitle.textContent = "Checking Ticket...";
+
+    guestName.textContent = "";
+
+    scanDetails.innerHTML = `
+        <p>Please wait while we validate the booking.</p>
+    `;
+
+}
+
+function showConnectionError() {
+
+    card.className = "result-card error";
+
+    statusIcon.textContent = "📡";
+    statusTitle.textContent = "Connection Error";
+
+    guestName.textContent = "";
+
+    scanDetails.innerHTML = `
+        Unable to contact the server.
+    `;
 
 }
 
 function showResult(result) {
 
-    const div = document.getElementById("message");
+    const now = new Date().toLocaleString("en-IE");
 
     if (result.success) {
 
-        // Vibrate once on success
-        if ("vibrate" in navigator) {
+        if ("vibrate" in navigator)
             navigator.vibrate(200);
-        }
 
+        const remaining =
+            result.totalTickets - result.scanCount;
 
-        div.style.background = "#2E7D32";
-        div.style.color = "#fff";
+        card.className = "result-card success";
 
-        div.innerHTML = `
-            <h2>✅ CHECK-IN SUCCESSFUL</h2>
+        statusIcon.textContent = "✅";
+        statusTitle.textContent = "Check-In Successful";
 
-            <h3>${result.name}</h3>
+        guestName.textContent = result.name;
 
-            <p><strong>${result.reference}</strong></p>
+        scanDetails.innerHTML = `
+            <table class="result-table">
 
-            <h2>${result.scanCount} / ${result.totalTickets}</h2>
+                <tr>
+                    <td>Reference</td>
+                    <td><strong>${result.reference}</strong></td>
+                </tr>
 
-            <p>${result.status}</p>
+                <tr>
+                    <td>Checked In</td>
+                    <td>${result.scanCount} / ${result.totalTickets}</td>
+                </tr>
+
+                <tr>
+                    <td>Remaining</td>
+                    <td>${remaining}</td>
+                </tr>
+
+                <tr>
+                    <td>Status</td>
+                    <td>${result.status}</td>
+                </tr>
+
+                <tr>
+                    <td>Scanned</td>
+                    <td>${now}</td>
+                </tr>
+
+            </table>
         `;
 
     } else {
-        // Double vibration on error
-        if ("vibrate" in navigator) {
+
+        if ("vibrate" in navigator)
             navigator.vibrate([200, 100, 200]);
-        }
 
-        div.style.background = "#C62828";
-        div.style.color = "#fff";
+        card.className = "result-card error";
 
-        div.innerHTML = `
-            <h2>❌ ${result.message}</h2>
+        statusIcon.textContent = "❌";
+        statusTitle.textContent = "Check-In Failed";
+
+        guestName.textContent = "";
+
+        scanDetails.innerHTML = `
+            <h3>${result.message}</h3>
         `;
+
     }
+
 }
 
 startScanner();
