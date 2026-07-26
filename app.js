@@ -1,4 +1,4 @@
-let scanner;
+let scanner = null;
 let processing = false;
 
 const card = document.getElementById("resultCard");
@@ -7,21 +7,79 @@ const statusIcon = document.getElementById("statusIcon");
 const guestName = document.getElementById("guestName");
 const scanDetails = document.getElementById("scanDetails");
 
-function startScanner() {
+const reader = document.getElementById("reader");
+const scanBtn = document.getElementById("scanBtn");
+const placeholder = document.getElementById("cameraPlaceholder");
+const scannerStatus = document.getElementById("scannerStatus");
+
+scanBtn.addEventListener("click", startScanner);
+
+async function startScanner() {
+
+    if (scanner) return;
+
+    processing = false;
+
+    scanBtn.style.display = "none";
+    placeholder.style.display = "none";
+    reader.style.display = "block";
+
+    scannerStatus.textContent = "Scanning...";
 
     scanner = new Html5Qrcode("reader");
 
-    scanner.start(
-        { facingMode: "environment" },
-        {
-            fps: 10,
-            qrbox: {
-                width: 280,
-                height: 280
-            }
-        },
-        onScan
-    );
+    try {
+
+        await scanner.start(
+            { facingMode: "environment" },
+            {
+                fps: 10,
+                qrbox: {
+                    width: 280,
+                    height: 280
+                }
+            },
+            onScan
+        );
+
+    } catch (err) {
+
+        console.error(err);
+
+        closeScanner();
+
+        showConnectionError();
+
+    }
+
+}
+
+async function closeScanner() {
+
+    try {
+
+        if (scanner) {
+
+            await scanner.stop();
+            await scanner.clear();
+
+        }
+
+    } catch (e) {
+
+        console.log(e);
+
+    }
+
+    scanner = null;
+
+    reader.style.display = "none";
+    placeholder.style.display = "block";
+
+    scanBtn.style.display = "block";
+    scanBtn.textContent = "📷 Scan Next Ticket";
+
+    scannerStatus.textContent = "Ready";
 
 }
 
@@ -66,11 +124,9 @@ async function onScan(qrText) {
 
     }
 
-    setTimeout(() => {
+    await closeScanner();
 
-        processing = false;
-
-    }, 1200);
+    processing = false;
 
 }
 
@@ -79,12 +135,12 @@ function showChecking() {
     card.className = "result-card waiting";
 
     statusIcon.textContent = "⏳";
-    statusTitle.textContent = "Checking Ticket...";
+    statusTitle.textContent = "Checking Ticket";
 
     guestName.textContent = "";
 
     scanDetails.innerHTML = `
-        <p>Please wait while we validate the booking.</p>
+        <p>Please wait while we validate the booking...</p>
     `;
 
 }
@@ -113,8 +169,7 @@ function showResult(result) {
         if ("vibrate" in navigator)
             navigator.vibrate(200);
 
-        const remaining =
-            result.totalTickets - result.scanCount;
+        const remaining = result.totalTickets - result.scanCount;
 
         card.className = "result-card success";
 
@@ -173,5 +228,3 @@ function showResult(result) {
     }
 
 }
-
-startScanner();
