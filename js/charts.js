@@ -1,62 +1,151 @@
-const pie = new Chart(
+/**
+ * charts.js
+ * Handles all dashboard charts
+ */
 
-document.getElementById("ticketChart"),
+let progressChart = null;
+let timelineChart = null;
 
-{
 
-type:"pie",
+/* ==========================================
+   Attendance Doughnut
+========================================== */
 
-data:{
+function initProgressChart() {
 
-labels:[
-"Adult",
-"Child",
-"Youth",
-"Meet&Greet",
-"Group5",
-"Group10"
-],
+    const ctx = document
+        .getElementById("progressChart")
+        .getContext("2d");
 
-datasets:[{
+    progressChart = new Chart(ctx, {
 
-data:[420,65,32,18,45,12]
+        type: "doughnut",
 
-}]
+        data: {
+
+            labels: [
+
+                "Checked In",
+
+                "Remaining"
+
+            ],
+
+            datasets: [{
+
+                data: [0, 0],
+
+                borderWidth: 1
+
+            }]
+
+        },
+
+        options: {
+
+            responsive: true,
+
+            maintainAspectRatio: false,
+
+            animation: {
+
+                duration: 500
+
+            },
+
+            plugins: {
+
+                legend: {
+
+                    position: "bottom"
+
+                }
+
+            }
+
+        }
+
+    });
 
 }
 
-});
 
-const line = new Chart(
+function updateProgressChart(checkedIn, remaining) {
 
-document.getElementById("timelineChart"),
+    if (!progressChart) return;
 
-{
+    progressChart.data.datasets[0].data = [
 
-type:"line",
+        checkedIn,
 
-data:{
+        remaining
 
-labels:[
-"10:00",
-"10:30",
-"11:00",
-"11:30",
-"12:00"
-],
+    ];
 
-datasets:[{
-
-label:"Check-ins",
-
-data:[15,52,120,188,284],
-
-fill:false,
-
-tension:.3
-
-}]
+    progressChart.update();
 
 }
 
-});
+
+/* ==========================================
+   Timeline
+========================================== */
+
+function initTimelineChart() {
+
+    const ctx = document
+        .getElementById("timelineChart")
+        .getContext("2d");
+
+    timelineChart = new Chart(ctx, {
+
+        type: "line",
+
+        data: {
+
+            labels: [],
+
+            datasets: [{
+
+                label: "Check-ins",
+
+                data: [],
+
+                tension: .35,
+
+                fill: false
+
+            }]
+
+        },
+
+        options: {
+
+            responsive: true,
+
+            maintainAspectRatio: false,
+
+            animation: {
+
+                duration: 500
+
+            }
+
+        }
+
+    });
+
+}
+
+
+function updateTimelineChart(labels, values) {
+
+    if (!timelineChart) return;
+
+    timelineChart.data.labels = labels;
+
+    timelineChart.data.datasets[0].data = values;
+
+    timelineChart.update();
+
+}
