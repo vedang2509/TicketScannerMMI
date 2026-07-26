@@ -51,10 +51,11 @@ async function loadDashboard() {
     UI.attendanceBar.style.width =
         `${stats.attendance}%`;
 
+    // charts.js
     updateProgressChart(
-    stats.checkedIn,
-    stats.remaining
-);
+        stats.checkedIn,
+        stats.remaining
+    );
 
 }
 
@@ -130,14 +131,10 @@ async function search() {
             card.className = "search-card";
 
             card.innerHTML = `
-
                 <strong>${item.name}</strong><br>
-
                 ${item.reference}<br>
-
                 Checked In:
                 <strong>${item.scanCount}/${item.totalTickets}</strong>
-
             `;
 
             UI.searchResults.appendChild(card);
@@ -151,126 +148,6 @@ async function search() {
         console.error(err);
 
     }
-
-}
-
-
-/* ===========================================
-   Charts
-=========================================== */
-
-function updateProgressChart(stats) {
-
-    const ctx =
-        document
-            .getElementById("progressChart")
-            .getContext("2d");
-
-    if (!progressChart) {
-
-        progressChart = new Chart(ctx, {
-
-            type: "doughnut",
-
-            data: {
-
-                labels: [
-
-                    "Checked In",
-                    "Remaining"
-
-                ],
-
-                datasets: [{
-
-                    data: [0, 0]
-
-                }]
-
-            },
-
-            options: {
-
-                responsive: true,
-
-                maintainAspectRatio: false,
-
-                plugins: {
-
-                    legend: {
-
-                        position: "bottom"
-
-                    }
-
-                }
-
-            }
-
-        });
-
-    }
-
-    progressChart.data.datasets[0].data = [
-
-        stats.checkedIn,
-        stats.remaining
-
-    ];
-
-    progressChart.update();
-
-}
-
-
-/**
- * Placeholder
- * Timeline API will be added later.
- */
-function drawTimelineChart() {
-
-    const ctx =
-        document
-            .getElementById("timelineChart")
-            .getContext("2d");
-
-    timelineChart = new Chart(ctx, {
-
-        type: "line",
-
-        data: {
-
-            labels: [],
-
-            datasets: [{
-
-                label: "Check-ins",
-
-                data: []
-
-            }]
-
-        },
-
-        options: {
-
-            responsive: true,
-
-            maintainAspectRatio: false,
-
-            plugins: {
-
-                legend: {
-
-                    display: false
-
-                }
-
-            }
-
-        }
-
-    });
 
 }
 
@@ -350,10 +227,8 @@ async function refreshDashboard() {
     try {
 
         await Promise.all([
-
             loadDashboard(),
             loadRecent()
-
         ]);
 
         setOnlineStatus(true);
@@ -377,21 +252,22 @@ async function refreshDashboard() {
    Initialise
 =========================================== */
 
-UI.searchBox.addEventListener(
-    "input",
-    searchDelayed
-);
+window.addEventListener("DOMContentLoaded", () => {
 
-initProgressChart();
+    UI.searchBox.addEventListener(
+        "input",
+        searchDelayed
+    );
 
-initTimelineChart();
+    // charts.js
+    initProgressChart();
+    initTimelineChart();
 
-refreshDashboard();
+    refreshDashboard();
 
-setInterval(
+    setInterval(
+        refreshDashboard,
+        CONFIG.REFRESH_INTERVAL
+    );
 
-    refreshDashboard,
-
-    CONFIG.REFRESH_INTERVAL
-
-);
+});
