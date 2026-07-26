@@ -73,6 +73,12 @@ function showResult(result) {
 
     if (result.success) {
 
+        // Vibrate once on success
+        if ("vibrate" in navigator) {
+            navigator.vibrate(200);
+        }
+
+
         div.style.background = "#2E7D32";
         div.style.color = "#fff";
 
@@ -89,6 +95,10 @@ function showResult(result) {
         `;
 
     } else {
+        // Double vibration on error
+        if ("vibrate" in navigator) {
+            navigator.vibrate([200, 100, 200]);
+        }
 
         div.style.background = "#C62828";
         div.style.color = "#fff";
