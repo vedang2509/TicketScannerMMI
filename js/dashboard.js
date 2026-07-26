@@ -212,8 +212,21 @@ function updateLastRefresh() {
 
     if (!UI.lastUpdated) return;
 
+    const now = new Date();
+
     UI.lastUpdated.textContent =
-        new Date().toLocaleTimeString();
+        now.toLocaleDateString("en-IE", {
+            day: "2-digit",
+            month: "short",
+            year: "numeric"
+        }) +
+        " " +
+        now.toLocaleTimeString("en-IE", {
+            hour: "2-digit",
+            minute: "2-digit",
+            second: "2-digit",
+            hour12: false
+        });
 
 }
 
