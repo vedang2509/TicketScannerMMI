@@ -26,8 +26,8 @@ async function loadDashboard() {
         document.getElementById("attendancePercent").textContent =
             stats.attendance + "%";
 
-        document.getElementById("attendanceBar").value =
-            stats.attendance;
+        document.getElementById("attendanceBar").style.width =
+            stats.attendance + "%";
 
         drawProgressChart(stats);
 
