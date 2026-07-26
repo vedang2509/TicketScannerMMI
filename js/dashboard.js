@@ -208,7 +208,7 @@ function setOnlineStatus(online) {
 
 }
 
-function updateLastRefresh() {
+function updateLast() {
 
     if (!UI.lastUpdated) return;
 
@@ -249,7 +249,6 @@ async function refreshDashboard() {
         updateLastRefresh();
 
     }
-
     catch (err) {
 
         console.error(err);
@@ -259,7 +258,6 @@ async function refreshDashboard() {
     }
 
 }
-
 
 /* ===========================================
    Initialise
