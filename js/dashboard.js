@@ -233,28 +233,23 @@ function updateLastRefresh() {
 
 async function refreshDashboard() {
 
+    // Dashboard
     try {
-
         await loadDashboard();
         console.log("Dashboard OK");
-
-    } catch (err) {
-
-        console.error("Dashboard failed:", err);
-
+    } catch (e) {
+        console.error("Dashboard Error:", e);
     }
 
+    // Recent
     try {
-
         await loadRecent();
         console.log("Recent OK");
-
-    } catch (err) {
-
-        console.error("Recent failed:", err);
-
+    } catch (e) {
+        console.error("Recent Error:", e);
     }
 
+    // Status
     setOnlineStatus(true);
     updateLastRefresh();
 
