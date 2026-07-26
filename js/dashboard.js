@@ -3,8 +3,6 @@
  * Jallosh Dashboard
  */
 
-let progressChart = null;
-let timelineChart = null;
 let searchTimer = null;
 
 const UI = {
