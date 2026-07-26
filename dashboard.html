@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>MMI Dashboard</title>
+
+    <link rel="stylesheet" href="css/dashboard.css">
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+</head>
+
+<body>
+
+<header>
+
+    <h1>🎉 Jallosh 2026 Dashboard</h1>
+
+    <div id="lastUpdated">
+        Last Updated:
+        <span>--:--:--</span>
+    </div>
+
+</header>
+
+
+<main>
+
+    <!-- Statistics -->
+
+    <section class="stats">
+
+        <div class="card">
+            <h3>Bookings</h3>
+            <h2 id="bookings">0</h2>
+        </div>
+
+        <div class="card">
+            <h3>Total Tickets</h3>
+            <h2 id="tickets">0</h2>
+        </div>
+
+        <div class="card">
+            <h3>Checked In</h3>
+            <h2 id="checkedIn">0</h2>
+        </div>
+
+        <div class="card">
+            <h3>Remaining</h3>
+            <h2 id="remaining">0</h2>
+        </div>
+
+    </section>
+
+
+    <!-- Charts -->
+
+    <section class="charts">
+
+        <div class="chart-card">
+
+            <h2>Ticket Distribution</h2>
+
+            <canvas id="ticketChart"></canvas>
+
+        </div>
+
+
+        <div class="chart-card">
+
+            <h2>Check-ins Over Time</h2>
+
+            <canvas id="timelineChart"></canvas>
+
+        </div>
+
+    </section>
+
+
+    <!-- Recent -->
+
+    <section class="recent">
+
+        <div class="recent-card">
+
+            <h2>Recent Check-ins</h2>
+
+            <table>
+
+                <thead>
+
+                <tr>
+
+                    <th>Time</th>
+                    <th>Name</th>
+                    <th>Tickets</th>
+
+                </tr>
+
+                </thead>
+
+                <tbody id="recentTable">
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </section>
+
+
+    <!-- Search -->
+
+    <section class="search">
+
+        <input
+                type="text"
+                id="searchBox"
+                placeholder="Search attendee...">
+
+        <div id="searchResults"></div>
+
+    </section>
+
+</main>
+
+<script src="js/config.js"></script>
+<script src="js/api.js"></script>
+<script src="js/charts.js"></script>
+<script src="js/dashboard.js"></script>
+
+</body>
+</html>
