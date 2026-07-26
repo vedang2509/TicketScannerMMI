@@ -231,14 +231,26 @@ document
 
 drawTimelineChart();
 
-loadDashboard();
+async function refreshDashboard() {
 
-loadRecent();
+    try {
 
-setInterval(() => {
+        await Promise.all([
+            loadDashboard(),
+            loadRecent()
+        ]);
 
-    loadDashboard();
+    } catch (err) {
 
-    loadRecent();
+        console.error(err);
 
-}, 5000);
+    }
+
+}
+
+refreshDashboard();
+
+setInterval(
+    refreshDashboard,
+    CONFIG.REFRESH_INTERVAL
+);
