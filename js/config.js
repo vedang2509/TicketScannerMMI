@@ -6,7 +6,7 @@
 const CONFIG = {
 
     // Apps Script Web App URL
-    API_URL: "YOUR_APPS_SCRIPT_WEB_APP_URL",
+    API_URL: "https://script.google.com/macros/s/AKfycbwZHcglopHdzimw_zwUTpLbFFpsxkBI8KAYPYDIzZcG3p0rjWj3tl4x9dshH8cNaQvXRQ/exec",
 
     // Event Information
     EVENT_NAME: "Jallosh 2026",
