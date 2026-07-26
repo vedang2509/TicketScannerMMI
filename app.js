@@ -30,17 +30,22 @@ async function startScanner() {
 
     try {
 
-        await scanner.start(
-            { facingMode: "environment" },
-            {
-                fps: 10,
-                qrbox: {
-                    width: 280,
-                    height: 280
-                }
-            },
-            onScan
-        );
+await scanner.start(
+    { facingMode: "environment" },
+    {
+        fps: 10,
+
+        qrbox: {
+            width: 280,
+            height: 280
+        },
+
+        aspectRatio: 1,
+
+        rememberLastUsedCamera: true
+    },
+    onScan
+);
 
     } catch (err) {
 
