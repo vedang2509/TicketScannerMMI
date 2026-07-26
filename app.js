@@ -1,99 +1,69 @@
-
 let scanner;
+let processing = false;
 
-function startScanner(){
+function startScanner() {
 
-scanner = new Html5Qrcode("reader");
+    scanner = new Html5Qrcode("reader");
 
-scanner.start(
-
-{ facingMode: "environment" },
-
-{
-
-fps:10,
-
-qrbox:250
-
-},
-
-onScan
-
-);
+    scanner.start(
+        { facingMode: "environment" },
+        {
+            fps: 10,
+            qrbox: { width: 250, height: 250 }
+        },
+        onScan
+    );
 
 }
 
 async function onScan(qrText) {
 
-  let reference = qrText;
+    if (processing) return;
 
-  try {
-    const data = JSON.parse(qrText);
+    processing = true;
 
-    if (data.reference) {
-      reference = data.reference;
+    let reference = qrText;
+
+    try {
+
+        const data = JSON.parse(qrText);
+
+        if (data.reference)
+            reference = data.reference;
+
+    } catch (e) {
+        // Plain text QR
     }
-  } catch (e) {
-    // QR isn't JSON, treat it as a plain reference
-  }
 
-  console.log("Reference:", reference);
+    document.getElementById("message").innerHTML = "Checking...";
 
-  await scanner.stop();
+    try {
 
-  document.getElementById("message").innerHTML = "Checking...";
+        const response = await fetch(
+            CONFIG.API_URL +
+            "?reference=" +
+            encodeURIComponent(reference)
+        );
 
-  fetch(
-    CONFIG.API_URL + "?reference=" + encodeURIComponent(reference)
-  )
-    .then(r => r.json())
-    .then(showResult)
-    .catch(e => {
-      document.getElementById("message").innerHTML = e;
-      setTimeout(startScanner, 2000);
-    });
+        const result = await response.json();
 
-}
-function showResult(result){
+        showResult(result);
 
-const div=document.getElementById("message");
+    } catch (err) {
 
-if(result.success){
+        document.getElementById("message").innerHTML =
+            "Connection Error";
 
-div.style.background="#C8E6C9";
+    }
 
-div.innerHTML=`
+    setTimeout(() => {
 
-<h2>✅ ${result.name}</h2>
+        processing = false;
 
-Reference<br>
+        document.getElementById("message").innerHTML =
+            "Ready to Scan";
 
-${result.reference}
-
-<br><br>
-
-${result.scanCount} / ${result.totalTickets}
-
-<br><br>
-
-${result.status}
-
-`;
-
-}
-else{
-
-div.style.background="#FFCDD2";
-
-div.innerHTML=`
-
-<h2>❌ ${result.message}</h2>
-
-`;
-
-}
-
-setTimeout(startScanner,2500);
+    }, 2000);
 
 }
 
