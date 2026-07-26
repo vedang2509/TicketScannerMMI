@@ -1,41 +1,76 @@
-
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
 
-<meta charset="UTF-8">
+    <meta charset="UTF-8">
 
-<meta
-name="viewport"
-content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>MMI Check-In</title>
+    <title>MMI Jallosh 2026 Check-In</title>
 
-<link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css">
 
-<script src="https://unpkg.com/html5-qrcode"></script>
+    <script src="https://unpkg.com/html5-qrcode"></script>
 
 </head>
 
 <body>
 
+<div class="background"></div>
+
 <div class="container">
 
-<h1>MMI Check-In</h1>
+    <header class="header">
 
-<div id="reader"></div>
+        <div>
+            <h1>MMI Jallosh 2026</h1>
+            <p>Volunteer Check-In Scanner</p>
+        </div>
 
-<div id="message">
+        <div class="status">
+            <span class="dot"></span>
+            Ready
+        </div>
 
-Ready to Scan
+    </header>
 
-</div>
+    <div class="scanner-card">
+
+        <div id="reader"></div>
+
+    </div>
+
+    <div id="resultCard" class="result-card waiting">
+
+        <div class="result-header">
+
+            <span id="statusIcon">📷</span>
+
+            <div>
+
+                <h2 id="statusTitle">Ready to Scan</h2>
+
+                <small>Last Scan Result</small>
+
+            </div>
+
+        </div>
+
+        <div class="result-body">
+
+            <h3 id="guestName">Waiting for first ticket...</h3>
+
+            <div id="scanDetails"></div>
+
+        </div>
+
+    </div>
 
 </div>
 
 <script src="config.js"></script>
-
+<script src="api.js"></script>
 <script src="app.js"></script>
 
 </body>
