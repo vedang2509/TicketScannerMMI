@@ -235,23 +235,28 @@ async function refreshDashboard() {
 
     try {
 
-        await Promise.all([
-            loadDashboard(),
-            loadRecent()
-        ]);
+        await loadDashboard();
+        console.log("Dashboard OK");
 
-        setOnlineStatus(true);
+    } catch (err) {
 
-        updateLastRefresh();
+        console.error("Dashboard failed:", err);
 
     }
-    catch (err) {
 
-        console.error(err);
+    try {
 
-        setOnlineStatus(false);
+        await loadRecent();
+        console.log("Recent OK");
+
+    } catch (err) {
+
+        console.error("Recent failed:", err);
 
     }
+
+    setOnlineStatus(true);
+    updateLastRefresh();
 
 }
 
