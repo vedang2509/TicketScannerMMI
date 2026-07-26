@@ -53,7 +53,10 @@ async function loadDashboard() {
     UI.attendanceBar.style.width =
         `${stats.attendance}%`;
 
-    updateProgressChart(stats);
+    updateProgressChart(
+    stats.checkedIn,
+    stats.remaining
+);
 
 }
 
@@ -381,7 +384,9 @@ UI.searchBox.addEventListener(
     searchDelayed
 );
 
-drawTimelineChart();
+initProgressChart();
+
+initTimelineChart();
 
 refreshDashboard();
 
