@@ -30,14 +30,33 @@
 
         <div class="status">
             <span class="dot"></span>
-            Ready
+            <span id="scannerStatus">Ready</span>
         </div>
 
     </header>
 
     <div class="scanner-card">
 
-        <div id="reader"></div>
+        <!-- Camera (Hidden Initially) -->
+        <div id="reader" style="display:none;"></div>
+
+        <!-- Camera Placeholder -->
+        <div id="cameraPlaceholder" class="camera-placeholder">
+
+            <div class="camera-icon">📷</div>
+
+            <h2>Camera is Off</h2>
+
+            <p>Click the button below to scan a ticket.</p>
+
+        </div>
+
+        <!-- Scan Button -->
+        <button id="scanBtn" class="scan-btn">
+
+            📷 Scan Ticket
+
+        </button>
 
     </div>
 
@@ -61,7 +80,11 @@
 
             <h3 id="guestName">Waiting for first ticket...</h3>
 
-            <div id="scanDetails"></div>
+            <div id="scanDetails">
+
+                Click <strong>Scan Ticket</strong> to begin.
+
+            </div>
 
         </div>
 
