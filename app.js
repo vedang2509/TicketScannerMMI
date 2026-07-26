@@ -67,4 +67,36 @@ async function onScan(qrText) {
 
 }
 
+function showResult(result) {
+
+    const div = document.getElementById("message");
+
+    if (result.success) {
+
+        div.style.background = "#2E7D32";
+        div.style.color = "#fff";
+
+        div.innerHTML = `
+            <h2>✅ CHECK-IN SUCCESSFUL</h2>
+
+            <h3>${result.name}</h3>
+
+            <p><strong>${result.reference}</strong></p>
+
+            <h2>${result.scanCount} / ${result.totalTickets}</h2>
+
+            <p>${result.status}</p>
+        `;
+
+    } else {
+
+        div.style.background = "#C62828";
+        div.style.color = "#fff";
+
+        div.innerHTML = `
+            <h2>❌ ${result.message}</h2>
+        `;
+    }
+}
+
 startScanner();
